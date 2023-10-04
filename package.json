@@ -1,0 +1,28 @@
+{
+  "name": "serverless-layer-organizer",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Serverless Framework plugin for keep your layer files unchanged when deploying/packaging",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iwaduarte/serverless-layer-structure.git"
+  },
+  "keywords": [
+    "serverless",
+    "packager",
+    "layer"
+  ],
+
+  "author": "Iwá Duarte",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^3.0.3"
+  },
+  "dependencies": {
+    "rimraf": "^5.0.5"
+  }
+}
