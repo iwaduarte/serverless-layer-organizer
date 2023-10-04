@@ -2,10 +2,14 @@ import { createFolders, createSymlink } from "./file.js";
 import { join } from "path";
 import { rimraf } from "rimraf";
 
+const removeFolders = (folders = []) =>
+  folders.forEach((folder) => rimraf(join(process.cwd(), folder)));
+
 class Packager {
-  constructor(serverless, cliOptions) {
+  constructor(serverless) {
     this.serverless = serverless;
-    this.cliOptions = cliOptions;
+    this.removeFoldersPath = [];
+    this.skipCleanup = false;
   }
   hooks = {
     "before:package:initialize": this.packageLayer.bind(this),
@@ -13,25 +17,48 @@ class Packager {
   };
 
   async packageLayer() {
-    const { service } = this.serverless || {};
-    const { name, runtime } = service || {};
+    const { service: { provider, layers, custom } = {} } =
+      this.serverless || {};
+    const { name, runtime } = provider || {};
 
     if (name !== "aws" || !runtime.toLowerCase().includes("nodejs")) {
       this.skipCleanup = true;
+      console.log(
+        `[Serverless-Layer-Organizer] - This version only supports: AWS | Node.js `,
+      );
       return;
     }
-    const symlinkPath = "nodejs/node_modules";
 
-    await createFolders(["nodejs"]);
-    await createSymlink(symlinkPath);
-    console.log("Organizing Layers...");
+    const { layers: customLayers = {} } =
+      custom["serverless-layer-organizer"] || {};
 
-    this.removeFolderPath = symlinkPath;
+    await Promise.all(
+      Object.keys(customLayers).map(async (customLayer, index) => {
+        if (!layers[customLayer]) return;
+
+        console.log(`Organizing ${customLayer} layer...`);
+
+        const organizerFolder = `organizer${index}`;
+        this.removeFoldersPath.push(organizerFolder);
+
+        const { path: originalPath } = layers[customLayer];
+        layers[customLayer].path = organizerFolder;
+
+        const { pathPrefix } = customLayers[customLayer];
+        const symlinkPath = join(organizerFolder, pathPrefix, originalPath);
+
+        await createFolders([join(organizerFolder, pathPrefix)]);
+        await createSymlink(symlinkPath, originalPath);
+      }),
+    ).catch((err) => {
+      console.log("[Serverless-Layer-Organizer] Error", err);
+      removeFolders(this.removeFoldersPath);
+      this.skipCleanup = true;
+    });
   }
   cleaningLayer() {
     if (this.skipCleanup) return;
-    if (this.removeFolderPath)
-      return rimraf(join(process.cwd(), this.removeFolderPath));
+    removeFolders(this.removeFoldersPath);
   }
 }
 export default Packager;
