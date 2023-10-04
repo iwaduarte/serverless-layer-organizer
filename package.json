@@ -18,7 +18,7 @@
   ],
 
   "author": "Iwá Duarte",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "prettier": "^3.0.3"
   },
