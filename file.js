@@ -12,7 +12,7 @@ const createFolders = (folders = []) =>
     ),
   );
 
-const createSymlink = async (src, target = "node_modules") => {
+const createSymlink = async (src, target) => {
   const targetPath = path.join(process.cwd(), target);
   const symlinkPath = path.join(process.cwd(), src);
   return fs.symlink(targetPath, symlinkPath, "junction");
