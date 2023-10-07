@@ -17,17 +17,7 @@ class Packager {
   };
 
   async packageLayer() {
-    const { service: { provider, layers, custom } = {} } =
-      this.serverless || {};
-    const { name, runtime } = provider || {};
-
-    if (name !== "aws" || !runtime.toLowerCase().includes("nodejs")) {
-      this.skipCleanup = true;
-      console.log(
-        `[Serverless-Layer-Organizer] - This version only supports: AWS | Node.js `,
-      );
-      return;
-    }
+    const { service: { layers, custom } = {} } = this.serverless || {};
 
     const { layers: customLayers = {} } =
       custom["serverless-layer-organizer"] || {};
