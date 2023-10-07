@@ -98,12 +98,6 @@ plugins:
 
 ```
 
-## Limitations
-
-- Only supports AWS as a cloud provider.
-- Only supports Node.js runtimes.
-
-
 ## License
 
 MIT
