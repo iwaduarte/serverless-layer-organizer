@@ -1,9 +1,5 @@
-import { createFolders, createSymlink } from "./file.js";
+import { createFolders, createSymlink, removeFolders } from "./file.js";
 import { join } from "path";
-import { rimraf } from "rimraf";
-
-const removeFolders = (folders = []) =>
-  folders.forEach((folder) => rimraf(join(process.cwd(), folder)));
 
 class Packager {
   constructor(serverless) {
