@@ -8,7 +8,11 @@ class Packager {
     this.skipCleanup = false;
 
     ["exit", "SIGINT", "uncaughtException", "unhandledRejection"].forEach(
-      (evt) => process.on(evt, () => removeFolders(this.removeFoldersPath)),
+      (evt) =>
+        process.once(evt, async () => {
+          await removeFolders(this.removeFoldersPath);
+          if (evt !== "exit") process.exit(0);
+        }),
     );
   }
   hooks = {
@@ -30,14 +34,14 @@ class Packager {
 
         console.log(`[SLO] Organising layer "${customLayer}".`);
         const { pathPrefix } = customLayers[customLayer];
-        const organizerFolder = `organizer${index}`;
+        const organizerFolder = join(".serverless", `slo-layer-${index}`);
         this.removeFoldersPath.push(organizerFolder);
 
         const { path: originalPath, package: pkg = {} } = layer || {};
         layer.path = organizerFolder;
 
         const patterns = Array.isArray(pkg.patterns) ? pkg.patterns : [];
-        const unixPref = pathPrefix.split(sep).join("/");
+        const unixPref = join(pathPrefix, originalPath).split(sep).join("/");
 
         pkg.patterns = patterns.map((p) => {
           const neg = p.startsWith("!") ? "!" : "";
@@ -54,15 +58,15 @@ class Packager {
         await createFolders([join(organizerFolder, pathPrefix)]);
         await createSymlink(symlinkPath, originalPath);
       }),
-    ).catch((err) => {
+    ).catch(async (err) => {
       console.log("[SLO] Error", err);
-      removeFolders(this.removeFoldersPath);
+      await removeFolders(this.removeFoldersPath);
       this.skipCleanup = true;
     });
   }
-  cleaningLayer() {
+  async cleaningLayer() {
     if (this.skipCleanup) return;
-    removeFolders(this.removeFoldersPath);
+    await removeFolders(this.removeFoldersPath);
   }
 }
 export default Packager;
