@@ -31,7 +31,8 @@ Define your custom layer organization under the `custom` key:
 custom:
   serverless-layer-organizer:
     layers:
-      YourLayerName:
+      # exactly naming (i.e layer: node, custom:node)
+      yourLayerName:
         pathPrefix: 'your/path/prefix'
 ```
 
@@ -52,6 +53,11 @@ custom:
 ```
 
 After packaging, your `commonLayer` will be reorganized under `utilities`.
+
+```
+├── utilities
+|   ├── (your_layer_folder)
+```
 
 
 ### Example: node_modules layer
@@ -81,7 +87,7 @@ layers:
 
 
 custom:
-  serverless-lambda-layer-packager:
+  serverless-layer-organizer:
     layers:
       nodeModules:
         pathPrefix: nodejs
