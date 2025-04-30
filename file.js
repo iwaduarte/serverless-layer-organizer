@@ -12,8 +12,13 @@ const createFolders = (folders = []) =>
         fs.mkdir(dirToCreate, { recursive: true, mode: MODE_0755 }),
     ),
   );
-const removeFolders = (folders = []) =>
-  folders.forEach((folder) => rimraf(join(process.cwd(), folder)));
+
+const removeFolders = async (folders = []) =>
+  await Promise.all(
+    folders.map((folder) => {
+      return rimraf(join(process.cwd(), folder));
+    }),
+  );
 
 const createSymlink = async (src, target) => {
   const targetPath = join(process.cwd(), target);
